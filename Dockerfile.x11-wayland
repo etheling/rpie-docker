@@ -6,7 +6,7 @@ RUN apt-get update \
 RUN apt-get -y install apt-utils gpg net-tools iproute2 sed feh mesa-vulkan-drivers fbset
 
 RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
-RUN rm -f /etc/localtime && ln -s /usr/share/zoneinfo/Europe/Tallinn /etc/localtime && dpkg-reconfigure --frontend noninteractive tzdata
+RUN rm -f /etc/localtime && ln -s /usr/share/zoneinfo/Europe/Chisinau /etc/localtime && dpkg-reconfigure --frontend noninteractive tzdata
 
 RUN apt-get install -y --no-install-recommends ca-certificates git lsb-release sudo x11-apps \
     && useradd -d /home/pi -G sudo -m pi \
