@@ -8,6 +8,8 @@
 
 ## NOTE: -v's / --priviledged -> no isolation security and otherwise provided by containerisation here... just move along.
 
+echo "to avoid trouble with udev perms, run retroarch / emulationstation using sudo / as root ;-)"
+
 docker container stop retrokms
 docker container rm retrokms
 docker run --privileged -v /dev:/dev -v /sys:/sys -v /run/user:/run/user -v /run/udev:/run/udev -e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR -e XDG_SESSION_ID=$XDG_SESSION_ID -e XDG_SESSION_CLASS=$XDG_SESSION_CLASS -e XDG_SEAT=$XDG_SEAT -e XDG_VTNR=$XDG_VTNR -e XDG_SESSION_TYPE="tty" -h $HOSTNAME --cap-add SYS_ADMIN --cap-add DAC_READ_SEARCH --network=host --name retrokms -v /home/pi/RetroPie:/home/pi/RetroPie -it retrokms:3.1

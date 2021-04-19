@@ -1,0 +1,43 @@
+FROM ubuntu:20.04
+
+RUN apt-get update \
+    && apt-get upgrade -y 
+
+RUN apt-get -y install apt-utils gpg net-tools iproute2 sed feh mesa-vulkan-drivers fbset
+
+RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
+RUN rm -f /etc/localtime && ln -s /usr/share/zoneinfo/Europe/Tallinn /etc/localtime && dpkg-reconfigure --frontend noninteractive tzdata
+
+RUN apt-get install -y --no-install-recommends ca-certificates git lsb-release sudo x11-apps \
+    && useradd -d /home/pi -G sudo -m pi \
+    && echo "pi ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/pi
+
+
+## FIXME: add vrr_runloop_enable & video_driver=vulkan to configs
+
+WORKDIR /home/pi
+USER pi
+RUN git clone --depth=1 https://github.com/RetroPie/RetroPie-Setup.git
+RUN mkdir -vp /tmp/retroarch-cores
+RUN mkdir -vp /tmp/emulators
+RUN mv -v /home/pi/RetroPie-Setup/scriptmodules/libretrocores/* /tmp/retroarch-cores/
+RUN mv -v /home/pi/RetroPie-Setup/scriptmodules/emulators/mupen* /tmp/emulators/
+#RUN cp -v /tmp/retroarch-cores/lr-fbneo.sh /home/pi/RetroPie-Setup/scriptmodules/libretrocores/
+RUN cp -v /tmp/retroarch-cores/lr-stella2014.sh /home/pi/RetroPie-Setup/scriptmodules/libretrocores/
+RUN chmod +x /home/pi/RetroPie-Setup/retropie_setup.sh
+RUN chmod +x /home/pi/RetroPie-Setup/retropie_packages.sh
+RUN cd /home/pi/RetroPie-Setup/ && sudo ./retropie_packages.sh setup basic_install
+
+## restore
+RUN mv -v /tmp/retroarch-cores/* /home/pi/RetroPie-Setup/scriptmodules/libretrocores/
+RUN mv -v /tmp/emulators/* /home/pi/RetroPie-Setup/scriptmodules/emulators/
+
+##     && sed 's/addEmulator 1/addEmulator 0/g' -i scriptmodules/libretrocores/*.sh \
+##    && sed 's/addEmulator 0/addEmulator 1/g' -i scriptmodules/libretrocores/lr-fbneo.sh \
+
+RUN sudo chown -R pi:pi /home/pi 
+
+RUN sudo usermod -aG adm,dialout,cdrom,sudo,audio,video,plugdev,games,users pi
+
+USER pi
+CMD /usr/bin/bash
